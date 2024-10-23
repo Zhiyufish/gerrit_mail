@@ -1,0 +1,51 @@
+/**
+ * Copyright (C) 2016 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+{namespace com.google.gerrit.server.mail.template.DeleteVoteHtml}
+
+import * as mailTemplate from 'com/google/gerrit/server/mail/Private.soy';
+
+{template DeleteVoteHtml}
+  {@param coverLetter: ?}
+  {@param email: ?}
+  {@param fromName: ?}
+  {@param change: ?}
+  {@param branch: ?}
+  {@param shortProjectName: ?}
+  {@param? attentionSet: list<string>|null}
+  <p style="color: brown;">
+    {$fromName} 从此变更中<strong>移除了投票</strong>.
+  </p>
+<p> .....................................................................</p>
+  <div>
+    <strong>Project:</strong>{sp}<span style="margin-left: 10px;">{$shortProjectName}</span>
+    <br><strong>Branch:</strong>{sp}<span style="margin-left: 10px;">{$branch.shortName}</span>
+    <br><strong>Change:</strong>{sp}<span style="margin-left: 8px;">{$change.shortSubject}</span>
+    <br><strong>Fromname:</strong>{sp}<span style="margin-left: 10px;">{$fromName}</span>
+    <br><strong>Reviewer:</strong>{sp}<span style="margin-left: 12px;">{$attentionSet}</span>
+                                        //{$email.reviewerNames}
+   </div>
+   
+  {if $email.changeUrl}
+    <p>
+      {call mailTemplate.ViewChangeButton data="all" /}
+    </p>
+  {/if}
+
+  {if $coverLetter}
+    <div style="white-space:pre-wrap">{$coverLetter}</div>
+  {/if}
+{/template}

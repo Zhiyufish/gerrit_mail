@@ -1,0 +1,113 @@
+/**
+ * Copyright (C) 2016 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+{namespace com.google.gerrit.server.mail.template.ReplacePatchSetHtml}
+
+import * as mailTemplate from 'com/google/gerrit/server/mail/Private.soy';
+
+{template ReplacePatchSetHtml}
+  {@param change: ?}
+  {@param email: ?}
+  {@param fromName: ?}
+  {@param fromEmail: ?}
+  {@param patchSet: ?}
+  {@param projectName: ?}
+  {@param unsatisfiedSubmitRequirements: ?}
+  {@param oldSubmitRequirements: ?}
+  {@param newSubmitRequirements: ?}
+  {@param branch: ?}
+  {@param shortProjectName: ?}
+  {@param coverLetter: ?}
+  {@param? attentionSet: list<string>|null}
+
+  <p style="color: brown;">
+    {$fromName} <strong> 上传补丁集 {$patchSet.patchSetId}</strong>{sp}
+    到{sp}
+    {if $fromEmail == $change.ownerEmail}
+      此变更.
+    {else}
+      此变更由{$change.ownerName}创建.
+    {/if}
+  </p>
+<p> .....................................................................</p>
+  <div>
+    <strong>Project:</strong>{sp}<span style="margin-left: 10px;">{$shortProjectName}</span>
+    <br><strong>Branch:</strong>{sp}<span style="margin-left: 10px;">{$branch.shortName}</span>
+    <br><strong>Change:</strong>{sp}<span style="margin-left: 8px;">{$change.shortSubject}</span>
+    <br><strong>Fromname:</strong>{sp}<span style="margin-left: 10px;">{$fromName}</span>
+    <br><strong>Reviewer:</strong>{sp}<span style="margin-left: 12px;">{$attentionSet}</span>
+                                        //{$email.reviewerNames}
+   </div>
+
+  {if $email.changeUrl}
+    <p>
+      {call mailTemplate.ViewChangeButton data="all" /}
+    </p>
+  {/if}
+
+  {if $email.outdatedApprovals && length($email.outdatedApprovals) > 0}
+    <p>
+      The following approvals got outdated and were removed:{\n}
+      {for $outdatedApproval, $index in $email.outdatedApprovals}
+        {if $index > 0}
+          ,{sp}
+        {/if}
+        {$outdatedApproval}
+      {/for}
+    </p>
+  {/if}
+
+  {if $unsatisfiedSubmitRequirements}
+    <p>
+      The change is no longer submittable:{sp}
+      {if length($unsatisfiedSubmitRequirements) > 0}
+        {for $unsatisfiedSubmitRequirement, $index in $unsatisfiedSubmitRequirements}
+          {if $index > 0}
+            {if $index == length($unsatisfiedSubmitRequirements) - 1}
+              {sp}and{sp}
+            {else}
+              ,{sp}
+            {/if}
+          {/if}
+          {$unsatisfiedSubmitRequirement}
+        {/for}
+        {sp}
+        {if length($unsatisfiedSubmitRequirements) == 1}
+          is
+        {else}
+          are
+        {/if}
+        {sp}unsatisfied now.
+      {/if}
+    </p>
+  {/if}
+
+  {call mailTemplate.Pre}
+    {param content: $email.changeDetail /}
+  {/call}
+
+/**
+*  {if $email.sshHost}
+*    {call mailTemplate.Pre}
+*      {param content kind="html"}
+*        git pull ssh:{print '//'}{$email.sshHost}/{$projectName}{sp}
+*        {$patchSet.refName}
+*      {/param}
+*    {/call}
+*  {/if}
+*/
+
+{/template}
